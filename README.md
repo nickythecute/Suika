@@ -1,2 +1,2 @@
 # Suika
-Cli para Mangás e Quadrinhos!
+Cli e Leitor para Mangás e Quadrinhos!
