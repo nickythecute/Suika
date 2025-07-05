@@ -1,3 +1,5 @@
+import os
+import subprocess
 from scrapers import site_mangadex, site_readallcomics
 
 fontes = {
@@ -34,6 +36,30 @@ def selecionar_multiplos_indices(max_index):
             else:
                 print(f"Ignorando entrada inválida: {parte}")
     return sorted(indices)
+
+
+def extrair_volume_capitulo(nome_issue):
+    """
+    Tenta extrair o volume e capítulo do título do issue.
+    Exemplo de título: 'Volume 1 Capítulo 2' ou 'Vol 1 Cap 2'
+    Se não conseguir, devolve valores padrão para evitar erros.
+    """
+    volume = "Volume_Desconhecido"
+    capitulo = "Cap_Desconhecido"
+
+    nome_issue = nome_issue.lower()
+
+    import re
+
+    vol_match = re.search(r'vol(?:ume)?\s*(\d+)', nome_issue)
+    if vol_match:
+        volume = f"Volume_{vol_match.group(1)}"
+    
+    cap_match = re.search(r'cap(?:ítulo)?\s*(\d+)', nome_issue)
+    if cap_match:
+        capitulo = f"Cap_{cap_match.group(1)}"
+
+    return volume, capitulo
 
 
 def main():
@@ -96,7 +122,26 @@ def main():
 
     for sel in selecionados:
         issue_url = issues[sel][1]
+        nome_issue = issues[sel][0]
+
+        print(f"\nBaixando capítulo: {nome_issue}")
         scraper.baixar_images(issue_url)
+
+        volume, capitulo = extrair_volume_capitulo(nome_issue)
+        pasta = os.path.join("downloads", volume, capitulo)
+
+        if not os.path.exists(pasta):
+            print(f"Erro: pasta {pasta} não encontrada após download.")
+            print("Verifique se a estrutura da pasta corresponde ao esperado.")
+            return
+
+        resposta = input(f"Deseja ler o capítulo baixado em {pasta}? (s/n): ").strip().lower()
+        if resposta == "s":
+            subprocess.run(["python", "leitor.py", pasta])
+            print("Abrindo leitor e encerrando o programa.")
+            return
+
+    print("\nDownload(s) concluído(s).")
 
 if __name__ == "__main__":
     main()
