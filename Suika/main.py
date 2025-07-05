@@ -6,7 +6,11 @@ fontes = {
 }
 
 def selecionar_multiplos_indices(max_index):
-    entrada = input("Digite os números dos capítulos (ex: 1, 2, 5-7): ")
+    entrada = input("Digite os números dos capítulos (ex: 1, 2, 5-7) ou 'all' para todos: ").strip().lower()
+    
+    if entrada == "all":
+        return list(range(max_index))
+    
     indices = set()
     partes = [p.strip() for p in entrada.split(",")]
     for parte in partes:
@@ -30,6 +34,7 @@ def selecionar_multiplos_indices(max_index):
             else:
                 print(f"Ignorando entrada inválida: {parte}")
     return sorted(indices)
+
 
 def main():
     print("Sites disponíveis:")
